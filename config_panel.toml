@@ -1,0 +1,70 @@
+#:schema https://github.com/YunoHost/apps/raw/main/schemas/config_panel.v1.schema.json
+
+version = "1.0"
+
+[main]
+name.en = "Configuration"
+name.fr = "Configuration"
+services = ["__APP__"]
+
+    [main.remote]
+    name.en = "Remote IMAP mailbox"
+    name.fr = "Boite IMAP distante"
+    optional = false
+
+        [main.remote.remote_email]
+        ask.en = "Remote email"
+        ask.fr = "Email distant"
+        type = "email"
+
+        [main.remote.remote_password]
+        ask.en = "Remote password"
+        ask.fr = "Mot de passe distant"
+        help.en = "Leave empty to keep the current password."
+        help.fr = "Laisser vide pour conserver le mot de passe actuel."
+        type = "password"
+        bind = "null"
+        redact = true
+
+        [main.remote.remote_host]
+        ask.en = "Remote IMAP host or URL"
+        ask.fr = "Hote ou URL IMAP distante"
+        type = "string"
+
+        [main.remote.remote_port]
+        ask.en = "Remote IMAP port"
+        ask.fr = "Port IMAP distant"
+        type = "number"
+        min = 1
+        max = 65535
+
+        [main.remote.delete_remote]
+        ask.en = "Delete remote messages after transfer"
+        ask.fr = "Supprimer les messages distants apres transfert"
+        type = "boolean"
+
+    [main.delivery]
+    name.en = "Local delivery"
+    name.fr = "Livraison locale"
+    optional = false
+
+        [main.delivery.target_user]
+        ask.en = "Target YunoHost user"
+        ask.fr = "Utilisateur YunoHost cible"
+        type = "user"
+
+        [main.delivery.local_imap_password]
+        ask.en = "YunoHost password of the selected target user"
+        ask.fr = "Mot de passe YunoHost de l'utilisateur cible selectionne"
+        help.en = "This must be the YunoHost password of the target user selected just above. Leave empty to keep the current password."
+        help.fr = "Cela doit etre le mot de passe YunoHost de l'utilisateur cible selectionne juste au-dessus. Laisser vide pour conserver le mot de passe actuel."
+        type = "password"
+        bind = "null"
+        redact = true
+
+        [main.delivery.poll_interval_minutes]
+        ask.en = "Polling interval in minutes"
+        ask.fr = "Intervalle de verification en minutes"
+        type = "number"
+        min = 1
+        max = 60

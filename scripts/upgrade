@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Stopping $app..."
+ynh_systemctl --service="$app" --action="stop" || true
+
+ynh_script_progression "Ensuring default settings..."
+ynh_app_setting_set_default --key=poll_interval_minutes --value="$default_poll_interval_minutes"
+
+ynh_script_progression "Refreshing application files..."
+ynh_safe_rm "$install_dir"
+mkdir -p "$install_dir"
+deploy_sources
+
+ynh_script_progression "Refreshing runtime configuration..."
+ensure_log_dir
+save_runtime_settings
+assert_password_credential_exists "$remote_credential_name"
+assert_password_credential_exists "$local_imap_credential_name"
+initialize_state_if_missing
+chown -R "$app:$app" "$data_dir"
+
+ynh_script_progression "Reinstalling system services..."
+ynh_config_add_systemd
+ynh_config_add_logrotate
+register_service
+
+ynh_script_progression "Starting $app..."
+ynh_systemctl --service="$app" --action="start"
+
+ynh_script_progression "Upgrade of $app completed"

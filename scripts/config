@@ -1,0 +1,48 @@
+#!/bin/bash
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_abort_if_errors
+
+get__remote_password() {
+    echo ""
+}
+
+get__local_imap_password() {
+    echo ""
+}
+
+set__target_user() {
+    local resolved_target_email
+    resolved_target_email="$(resolve_target_email)"
+    if [ -z "$resolved_target_email" ]; then
+        ynh_die --message="Unable to resolve the primary email address for YunoHost user $target_user"
+    fi
+
+    ynh_app_setting_set --key=target_user --value="$target_user"
+    ynh_app_setting_set --key=local_imap_email --value="$resolved_target_email"
+    ynh_print_info "Target user updated to $target_user ($resolved_target_email)."
+}
+
+set__remote_password() {
+    if [ -z "${remote_password:-}" ]; then
+        ynh_print_info "Remote IMAP password unchanged."
+        return 0
+    fi
+
+    store_password_credential "$remote_credential_name" "$remote_password"
+    ynh_print_info "Remote IMAP password updated."
+}
+
+set__local_imap_password() {
+    if [ -z "${local_imap_password:-}" ]; then
+        ynh_print_info "Local IMAP password unchanged."
+        return 0
+    fi
+
+    store_password_credential "$local_imap_credential_name" "$local_imap_password"
+    ynh_print_info "Local IMAP password updated."
+}
+
+ynh_app_config_run "$1"

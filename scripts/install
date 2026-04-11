@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Deploying application files..."
+deploy_sources
+
+ynh_script_progression "Saving runtime settings..."
+ensure_log_dir
+save_runtime_settings
+store_password_credential "$remote_credential_name" "$remote_password"
+store_password_credential "$local_imap_credential_name" "$local_imap_password"
+initialize_state
+chown -R "$app:$app" "$data_dir"
+
+ynh_script_progression "Installing system services..."
+ynh_config_add_systemd
+ynh_config_add_logrotate
+register_service
+
+ynh_script_progression "Starting $app..."
+ynh_systemctl --service="$app" --action="start"
+
+ynh_script_progression "Installation of $app completed"

@@ -1,0 +1,31 @@
+[Unit]
+Description=Forward remote IMAP mail into a local YunoHost mailbox
+After=network-online.target dovecot.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__APP__
+Group=__APP__
+WorkingDirectory=__INSTALL_DIR__/
+LoadCredentialEncrypted=remote_password:__DATA_DIR__/remote_password.cred
+LoadCredentialEncrypted=local_imap_password:__DATA_DIR__/local_imap_password.cred
+ExecStart=/usr/bin/python3 -u __INSTALL_DIR__/email_forward.py --app __APP__ --state __DATA_DIR__/state.json
+Restart=always
+RestartSec=30
+StandardOutput=append:/var/log/__APP__/__APP__.log
+StandardError=append:/var/log/__APP__/__APP__.log
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=full
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

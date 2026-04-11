@@ -1,0 +1,93 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/main/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "email_forward"
+name = "YunoHost Mail Relay"
+description.en = "Continuously relays a remote IMAP inbox into a YunoHost mailbox"
+description.fr = "Relaye en continu une boite IMAP distante vers une boite mail YunoHost"
+
+version = "0.1~ynh1"
+
+maintainers = ["rungeard"]
+
+[upstream]
+license = "GPL-3.0-or-later"
+admindoc = "https://doc.yunohost.org/dev/packaging/"
+
+[integration]
+yunohost = ">= 12.1.17"
+helpers_version = "2.1"
+architectures = "all"
+multi_instance = true
+ldap = false
+sso = false
+disk = "10M"
+ram.build = "20M"
+ram.runtime = "30M"
+
+[install]
+    [install.remote_email]
+    ask.en = "Email address of the remote IMAP mailbox"
+    ask.fr = "Adresse e-mail de la boite IMAP distante"
+    type = "email"
+    default = "relay@example.com"
+
+    [install.remote_password]
+    ask.en = "Password of the remote IMAP mailbox"
+    ask.fr = "Mot de passe de la boite IMAP distante"
+    type = "password"
+
+    [install.remote_host]
+    ask.en = "IMAP host or URL of the remote mailbox"
+    ask.fr = "Hote ou URL IMAP de la boite distante"
+    type = "string"
+    default = "imap.example.com"
+
+    [install.remote_port]
+    ask.en = "IMAP port of the remote mailbox"
+    ask.fr = "Port IMAP de la boite distante"
+    type = "number"
+    default = 993
+    min = 1
+    max = 65535
+
+    [install.delete_remote]
+    ask.en = "Delete messages from the remote mailbox after a successful transfer"
+    ask.fr = "Supprimer les messages de la boite distante apres un transfert reussi"
+    type = "boolean"
+    default = 0
+
+    [install.target_user]
+    ask.en = "YunoHost user receiving the forwarded messages"
+    ask.fr = "Utilisateur YunoHost qui recevra les messages transferes"
+    type = "user"
+
+    [install.local_imap_password]
+    ask.en = "YunoHost password of the selected target user"
+    ask.fr = "Mot de passe YunoHost de l'utilisateur cible selectionne"
+    type = "password"
+
+    [install.poll_interval_minutes]
+    ask.en = "Polling interval in minutes"
+    ask.fr = "Intervalle de verification en minutes"
+    type = "number"
+    default = 1
+    min = 1
+    max = 60
+
+[resources]
+    [resources.system_user]
+
+    [resources.install_dir]
+    dir = "/opt/yunohost/__APP__"
+    owner = "__APP__:rwx"
+    group = "__APP__:rx"
+
+    [resources.data_dir]
+    dir = "/var/lib/__APP__"
+    owner = "__APP__:rwx"
+    group = "__APP__:rx"
+
+    [resources.apt]
+    packages = "python3-yaml"
