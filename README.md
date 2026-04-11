@@ -21,6 +21,8 @@ Continuously relays a remote IMAP inbox into a YunoHost mailbox
 
 [![Automatic tests level](https://apps.yunohost.org/badge/cilevel/email_forward)](https://ci-apps.yunohost.org/ci/apps/email_forward/)
 
+🛠️ Upstream YunoHost Mail Relay repository: <https://github.com/rungeard/mail_relay_ynh>
+
 Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/email_forward_ynh/tree/testing).
 
 The `testing` branch can be tested using:
