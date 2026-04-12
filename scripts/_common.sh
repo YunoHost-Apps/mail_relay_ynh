@@ -4,6 +4,7 @@ readonly default_poll_interval_minutes=1
 readonly service_description="Forward remote IMAP mail into a YunoHost mailbox"
 readonly remote_credential_name="remote_password"
 readonly local_imap_credential_name="local_imap_password"
+readonly runtime_config_path="$data_dir/config.yml"
 
 deploy_sources() {
     mkdir -p "$install_dir"
@@ -34,6 +35,18 @@ save_runtime_settings() {
     ynh_app_setting_set --key=target_user --value="$target_user"
     ynh_app_setting_set --key=local_imap_email --value="$resolved_target_email"
     ynh_app_setting_set --key=poll_interval_minutes --value="${poll_interval_minutes:-$default_poll_interval_minutes}"
+
+    render_runtime_config "$resolved_target_email"
+}
+
+render_runtime_config() {
+    local resolved_target_email="$1"
+    local local_imap_email="$resolved_target_email"
+    local poll_interval_minutes="${poll_interval_minutes:-$default_poll_interval_minutes}"
+
+    ynh_config_add --template="config.yml" --destination="$runtime_config_path"
+    chown "$app:$app" "$runtime_config_path"
+    chmod 600 "$runtime_config_path"
 }
 
 credential_path() {
@@ -82,6 +95,28 @@ initialize_state_if_missing() {
     else
         chown "$app:$app" "$data_dir/state.json"
         chmod 600 "$data_dir/state.json"
+    fi
+}
+
+fix_data_dir_permissions() {
+    if [ -f "$runtime_config_path" ]; then
+        chown "$app:$app" "$runtime_config_path"
+        chmod 600 "$runtime_config_path"
+    fi
+
+    if [ -f "$data_dir/state.json" ]; then
+        chown "$app:$app" "$data_dir/state.json"
+        chmod 600 "$data_dir/state.json"
+    fi
+
+    if [ -f "$(credential_path "$remote_credential_name")" ]; then
+        chown root:root "$(credential_path "$remote_credential_name")"
+        chmod 600 "$(credential_path "$remote_credential_name")"
+    fi
+
+    if [ -f "$(credential_path "$local_imap_credential_name")" ]; then
+        chown root:root "$(credential_path "$local_imap_credential_name")"
+        chmod 600 "$(credential_path "$local_imap_credential_name")"
     fi
 }
 

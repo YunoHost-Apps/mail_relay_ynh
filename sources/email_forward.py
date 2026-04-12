@@ -46,8 +46,8 @@ class Config:
     local_imap_password: str
 
     @classmethod
-    def load(cls, *, app: str) -> "Config":
-        data = load_yunohost_settings(app)
+    def load(cls, *, path: Path) -> "Config":
+        data = load_runtime_config(path)
         return cls(
             remote_email=str(data["remote_email"]),
             remote_password=load_systemd_credential("remote_password"),
@@ -323,12 +323,11 @@ def parse_bool(value: object) -> bool:
     return str(value).strip().lower() not in {"", "0", "false", "no", "non"}
 
 
-def load_yunohost_settings(app: str) -> dict[str, object]:
-    settings_path = Path("/etc/yunohost/apps") / app / "settings.yml"
-    with settings_path.open(encoding="utf-8") as handle:
+def load_runtime_config(path: Path) -> dict[str, object]:
+    with path.open(encoding="utf-8") as handle:
         loaded = yaml.safe_load(handle) or {}
     if not isinstance(loaded, dict):
-        raise RuntimeError(f"Unexpected settings format in {settings_path}")
+        raise RuntimeError(f"Unexpected runtime config format in {path}")
     return loaded
 
 
@@ -351,7 +350,7 @@ def _utc_now() -> datetime:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--app", required=True)
+    parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--state", required=True, type=Path)
     return parser.parse_args(argv)
 
@@ -363,7 +362,7 @@ def main(argv: list[str]) -> int:
     )
 
     args = parse_args(argv)
-    config = Config.load(app=args.app)
+    config = Config.load(path=args.config)
     forwarder = EmailForwarder(config, args.state)
 
     signal.signal(signal.SIGINT, forwarder.request_stop)

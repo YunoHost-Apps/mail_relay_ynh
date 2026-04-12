@@ -21,6 +21,7 @@ assert_password_credential_exists "$remote_credential_name"
 assert_password_credential_exists "$local_imap_credential_name"
 initialize_state_if_missing
 chown -R "$app:$app" "$data_dir"
+fix_data_dir_permissions
 
 ynh_script_progression "Reinstalling system services..."
 ynh_config_add_systemd

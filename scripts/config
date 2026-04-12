@@ -14,15 +14,8 @@ get__local_imap_password() {
 }
 
 set__target_user() {
-    local resolved_target_email
-    resolved_target_email="$(resolve_target_email)"
-    if [ -z "$resolved_target_email" ]; then
-        ynh_die --message="Unable to resolve the primary email address for YunoHost user $target_user"
-    fi
-
-    ynh_app_setting_set --key=target_user --value="$target_user"
-    ynh_app_setting_set --key=local_imap_email --value="$resolved_target_email"
-    ynh_print_info "Target user updated to $target_user ($resolved_target_email)."
+    save_runtime_settings
+    ynh_print_info "Target user updated to $target_user."
 }
 
 set__remote_password() {
@@ -46,3 +39,8 @@ set__local_imap_password() {
 }
 
 ynh_app_config_run "$1"
+
+if [ "$1" = "apply" ]; then
+    save_runtime_settings
+    fix_data_dir_permissions
+fi

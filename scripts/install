@@ -13,6 +13,7 @@ store_password_credential "$remote_credential_name" "$remote_password"
 store_password_credential "$local_imap_credential_name" "$local_imap_password"
 initialize_state
 chown -R "$app:$app" "$data_dir"
+fix_data_dir_permissions
 
 ynh_script_progression "Installing system services..."
 ynh_config_add_systemd
