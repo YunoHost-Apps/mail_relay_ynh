@@ -20,8 +20,8 @@ yunohost = ">= 12.1.17"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
-ldap = false
-sso = false
+ldap = "not_relevant"
+sso = "not_relevant"
 disk = "10M"
 ram.build = "20M"
 ram.runtime = "30M"
@@ -77,6 +77,9 @@ ram.runtime = "30M"
     max = 60
 
 [resources]
+    [resources.permissions]
+    main.show_tile = false
+
     [resources.system_user]
 
     [resources.install_dir]

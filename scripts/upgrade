@@ -17,11 +17,7 @@ deploy_sources
 ynh_script_progression "Refreshing runtime configuration..."
 ensure_log_dir
 save_runtime_settings
-assert_password_credential_exists "$remote_credential_name"
-assert_password_credential_exists "$local_imap_credential_name"
-initialize_state_if_missing
-chown -R "$app:$app" "$data_dir"
-fix_data_dir_permissions
+ensure_runtime_files
 
 ynh_script_progression "Reinstalling system services..."
 ynh_config_add_systemd

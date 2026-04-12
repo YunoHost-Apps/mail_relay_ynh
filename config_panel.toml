@@ -16,6 +16,7 @@ services = ["__APP__"]
         ask.en = "Remote email"
         ask.fr = "Email distant"
         type = "email"
+        bind = ":__DATA_DIR__/config.yml"
 
         [main.remote.remote_password]
         ask.en = "Remote password"
@@ -30,11 +31,13 @@ services = ["__APP__"]
         ask.en = "Remote IMAP host or URL"
         ask.fr = "Hote ou URL IMAP distante"
         type = "string"
+        bind = ":__DATA_DIR__/config.yml"
 
         [main.remote.remote_port]
         ask.en = "Remote IMAP port"
         ask.fr = "Port IMAP distant"
         type = "number"
+        bind = ":__DATA_DIR__/config.yml"
         min = 1
         max = 65535
 
@@ -42,6 +45,7 @@ services = ["__APP__"]
         ask.en = "Delete remote messages after transfer"
         ask.fr = "Supprimer les messages distants apres transfert"
         type = "boolean"
+        bind = ":__DATA_DIR__/config.yml"
 
     [main.delivery]
     name.en = "Local delivery"
@@ -52,6 +56,7 @@ services = ["__APP__"]
         ask.en = "Target YunoHost user"
         ask.fr = "Utilisateur YunoHost cible"
         type = "user"
+        bind = ":__DATA_DIR__/config.yml"
 
         [main.delivery.local_imap_password]
         ask.en = "YunoHost password of the selected target user"
@@ -66,5 +71,6 @@ services = ["__APP__"]
         ask.en = "Polling interval in minutes"
         ask.fr = "Intervalle de verification en minutes"
         type = "number"
+        bind = ":__DATA_DIR__/config.yml"
         min = 1
         max = 60

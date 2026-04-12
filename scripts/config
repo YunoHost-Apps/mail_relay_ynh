@@ -13,18 +13,13 @@ get__local_imap_password() {
     echo ""
 }
 
-set__target_user() {
-    save_runtime_settings
-    ynh_print_info "Target user updated to $target_user."
-}
-
 set__remote_password() {
     if [ -z "${remote_password:-}" ]; then
         ynh_print_info "Remote IMAP password unchanged."
         return 0
     fi
 
-    store_password_credential "$remote_credential_name" "$remote_password"
+    ynh_app_setting_set --key=remote_password --value="$remote_password"
     ynh_print_info "Remote IMAP password updated."
 }
 
@@ -34,13 +29,14 @@ set__local_imap_password() {
         return 0
     fi
 
-    store_password_credential "$local_imap_credential_name" "$local_imap_password"
+    ynh_app_setting_set --key=local_imap_password --value="$local_imap_password"
     ynh_print_info "Local IMAP password updated."
 }
 
-ynh_app_config_run "$1"
-
-if [ "$1" = "apply" ]; then
+ynh_app_config_apply() {
+    _ynh_app_config_apply
     save_runtime_settings
-    fix_data_dir_permissions
-fi
+    ensure_runtime_files
+}
+
+ynh_app_config_run "$1"

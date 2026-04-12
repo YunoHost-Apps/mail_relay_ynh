@@ -1,8 +1,10 @@
 remote_email: __REMOTE_EMAIL__
+remote_password: __REMOTE_PASSWORD__
 remote_host: __REMOTE_HOST__
 remote_port: __REMOTE_PORT__
 delete_remote: __DELETE_REMOTE__
 target_user: __TARGET_USER__
 local_imap_email: __LOCAL_IMAP_EMAIL__
+local_imap_password: __LOCAL_IMAP_PASSWORD__
 poll_interval_minutes: __POLL_INTERVAL_MINUTES__
 target_mailbox: INBOX

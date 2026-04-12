@@ -7,7 +7,6 @@ import argparse
 import imaplib
 import json
 import logging
-import os
 import re
 import signal
 import sys
@@ -50,7 +49,7 @@ class Config:
         data = load_runtime_config(path)
         return cls(
             remote_email=str(data["remote_email"]),
-            remote_password=load_systemd_credential("remote_password"),
+            remote_password=str(data["remote_password"]),
             remote_host=normalize_host(str(data["remote_host"])),
             remote_port=int(data["remote_port"]),
             delete_remote=parse_bool(data["delete_remote"]),
@@ -58,7 +57,7 @@ class Config:
             poll_interval_seconds=max(1, min(60, int(data.get("poll_interval_minutes", 1)))) * 60,
             target_mailbox=str(data.get("target_mailbox", "INBOX")),
             local_imap_email=str(data["local_imap_email"]),
-            local_imap_password=load_systemd_credential("local_imap_password"),
+            local_imap_password=str(data["local_imap_password"]),
         )
 
 
@@ -329,15 +328,6 @@ def load_runtime_config(path: Path) -> dict[str, object]:
     if not isinstance(loaded, dict):
         raise RuntimeError(f"Unexpected runtime config format in {path}")
     return loaded
-
-
-def load_systemd_credential(name: str) -> str:
-    credentials_directory = os.environ.get("CREDENTIALS_DIRECTORY")
-    if not credentials_directory:
-        raise RuntimeError("CREDENTIALS_DIRECTORY is not defined")
-
-    credential_path = Path(credentials_directory) / name
-    return credential_path.read_text(encoding="utf-8").rstrip("\n")
 
 
 def _parse_datetime(value: str) -> datetime:
