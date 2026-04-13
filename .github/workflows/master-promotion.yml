@@ -1,0 +1,29 @@
+name: Create master promotion pull request
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - testing
+
+jobs:
+  masterPromotion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Reset promotion branch
+        run: |
+          git fetch origin testing:testing
+          git reset --hard testing
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: master-promotion
+          title: "Upgrade master from testing"
+          body: |
+            Upgrade master from testing
