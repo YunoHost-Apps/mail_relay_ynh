@@ -49,8 +49,6 @@ ram.runtime = "30M"
     ask.fr = "Port IMAP de la boite distante"
     type = "number"
     default = 993
-    min = 1
-    max = 65535
 
     [install.delete_remote]
     ask.en = "Delete messages from the remote mailbox after a successful transfer"
@@ -73,8 +71,6 @@ ram.runtime = "30M"
     ask.fr = "Intervalle de verification en minutes"
     type = "number"
     default = 1
-    min = 1
-    max = 60
 
 [resources]
     [resources.permissions]

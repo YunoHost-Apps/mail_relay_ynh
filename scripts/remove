@@ -11,6 +11,5 @@ if ynh_hide_warnings yunohost service status "$app" >/dev/null; then
 fi
 
 ynh_config_remove_systemd
-ynh_safe_rm "/var/log/$app"
 
 ynh_script_progression "Removal of $app completed"
