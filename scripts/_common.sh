@@ -117,7 +117,6 @@ install_systemd_units() {
 }
 
 start_scheduler() {
-    systemctl start "$app.service"
     systemctl start "$app.timer"
 }
 
