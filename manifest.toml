@@ -2,7 +2,7 @@
 
 packaging_format = 2
 
-id = "email_forward"
+id = "mail_relay"
 name = "YunoHost Mail Relay"
 description.en = "Continuously relays a remote IMAP inbox into a YunoHost mailbox"
 description.fr = "Relaye en continu une boite IMAP distante vers une boite mail YunoHost"
@@ -13,7 +13,7 @@ maintainers = ["rungeard"]
 
 [upstream]
 license = "GPL-3.0-or-later"
-code = "https://github.com/rungeard/mail_relay_ynh"
+code = "https://github.com/YunoHost-Apps/mail_relay_ynh"
 
 [integration]
 yunohost = ">= 12.1.17"

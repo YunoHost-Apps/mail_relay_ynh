@@ -16,7 +16,7 @@ A clear and concise description of what the bug is.
 - *If you performed a command from the CLI, the command itself is enough. E.g.:*
 
 ```bash
-sudo yunohost app install email_forward
+sudo yunohost app install mail_relay
 ```
 
 ### Expected behavior
