@@ -21,7 +21,7 @@ Continuously relays a remote IMAP inbox into a YunoHost mailbox
 
 [![Automatic tests level](https://apps.yunohost.org/badge/cilevel/mail_relay)](https://ci-apps.yunohost.org/ci/apps/mail_relay/)
 
-🛠️ Upstream YunoHost Mail Relay repository: <https://github.com/rungeard/mail_relay_ynh>
+🛠️ Upstream YunoHost Mail Relay repository: <https://github.com/YunoHost-Apps/mail_relay_ynh>
 
 Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/mail_relay_ynh/tree/testing).
 
@@ -34,10 +34,6 @@ sudo yunohost app install https://github.com/YunoHost-Apps/mail_relay_ynh/tree/t
 sudo yunohost app upgrade mail_relay -u https://github.com/YunoHost-Apps/mail_relay_ynh/tree/testing
 ```
 
-You can also switch to the testing branch to update from testing by default (as same as for APT when you chose to use a testing repos) with this command:
-```bash
-sudo yunohost app setting mail_relay upgrade_channel -v testing
-```
 ### 📚 App packaging documentation
 
 Please see <https://doc.yunohost.org/packaging_apps> for more information.
