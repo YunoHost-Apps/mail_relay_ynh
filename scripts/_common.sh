@@ -101,7 +101,10 @@ ensure_runtime_files() {
 }
 
 register_service() {
-    yunohost service add "$app" --description="$service_description" --log="/var/log/$app/$app.log"
+    yunohost service add "$app" \
+        --description="$service_description" \
+        --log="/var/log/$app/$app.log" \
+        --test_status="systemctl is-enabled --quiet '$app.timer' && systemctl is-active --quiet '$app.timer'"
 }
 
 install_systemd_units() {

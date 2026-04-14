@@ -31,7 +31,7 @@ ram.runtime = "30M"
     ask.en = "Email address of the remote IMAP mailbox"
     ask.fr = "Adresse e-mail de la boite IMAP distante"
     type = "email"
-    default = "relay@example.com"
+    example = "relay@example.com"
 
     [install.remote_password]
     ask.en = "Password of the remote IMAP mailbox"
@@ -42,7 +42,7 @@ ram.runtime = "30M"
     ask.en = "IMAP host or URL of the remote mailbox"
     ask.fr = "Hote ou URL IMAP de la boite distante"
     type = "string"
-    default = "imap.example.com"
+    example = "imap.example.com"
 
     [install.remote_port]
     ask.en = "IMAP port of the remote mailbox"
