@@ -13,15 +13,16 @@ ensure_runtime_files
 
 ynh_script_progression "Restoring system services..."
 ynh_restore "/etc/systemd/system/$app.service"
+ynh_restore "/etc/systemd/system/$app.timer"
 systemctl daemon-reload
-systemctl enable "$app.service" --quiet
+systemctl enable "$app.timer" --quiet
 ynh_restore "/etc/logrotate.d/$app"
 mkdir -p "/var/log/$app"
 ynh_restore "/var/log/$app/" || true
 chown -R "$app:$app" "/var/log/$app"
 register_service
 
-ynh_script_progression "Starting $app..."
-ynh_systemctl --service="$app" --action="start"
+ynh_script_progression "Starting scheduler for $app..."
+start_scheduler
 
 ynh_script_progression "Restoration completed for $app"

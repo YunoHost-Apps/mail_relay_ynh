@@ -2,7 +2,7 @@
 
 packaging_format = 2
 
-id = "email_forward"
+id = "mail_relay"
 name = "YunoHost Mail Relay"
 description.en = "Continuously relays a remote IMAP inbox into a YunoHost mailbox"
 description.fr = "Relaye en continu une boite IMAP distante vers une boite mail YunoHost"
@@ -13,7 +13,7 @@ maintainers = ["rungeard"]
 
 [upstream]
 license = "GPL-3.0-or-later"
-code = "https://github.com/rungeard/mail_relay_ynh"
+code = "https://github.com/YunoHost-Apps/mail_relay_ynh"
 
 [integration]
 yunohost = ">= 12.1.17"
@@ -22,8 +22,8 @@ architectures = "all"
 multi_instance = true
 ldap = "not_relevant"
 sso = "not_relevant"
-disk = "10M"
-ram.build = "20M"
+disk = "100M"
+ram.build = "100M"
 ram.runtime = "30M"
 
 [install]
@@ -31,7 +31,7 @@ ram.runtime = "30M"
     ask.en = "Email address of the remote IMAP mailbox"
     ask.fr = "Adresse e-mail de la boite IMAP distante"
     type = "email"
-    default = "relay@example.com"
+    example = "relay@example.com"
 
     [install.remote_password]
     ask.en = "Password of the remote IMAP mailbox"
@@ -42,15 +42,13 @@ ram.runtime = "30M"
     ask.en = "IMAP host or URL of the remote mailbox"
     ask.fr = "Hote ou URL IMAP de la boite distante"
     type = "string"
-    default = "imap.example.com"
+    example = "imap.example.com"
 
     [install.remote_port]
     ask.en = "IMAP port of the remote mailbox"
     ask.fr = "Port IMAP de la boite distante"
     type = "number"
     default = 993
-    min = 1
-    max = 65535
 
     [install.delete_remote]
     ask.en = "Delete messages from the remote mailbox after a successful transfer"
@@ -73,8 +71,6 @@ ram.runtime = "30M"
     ask.fr = "Intervalle de verification en minutes"
     type = "number"
     default = 1
-    min = 1
-    max = 60
 
 [resources]
     [resources.permissions]
@@ -83,7 +79,7 @@ ram.runtime = "30M"
     [resources.system_user]
 
     [resources.install_dir]
-    dir = "/opt/yunohost/__APP__"
+    dir = "/var/www/__APP__"
     owner = "__APP__:rwx"
     group = "__APP__:rx"
 

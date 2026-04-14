@@ -8,10 +8,8 @@ import imaplib
 import json
 import logging
 import re
-import signal
 import sys
 import tempfile
-import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email import policy
@@ -39,7 +37,6 @@ class Config:
     remote_port: int
     delete_remote: bool
     target_user: str
-    poll_interval_seconds: int
     target_mailbox: str
     local_imap_email: str
     local_imap_password: str
@@ -54,7 +51,6 @@ class Config:
             remote_port=int(data["remote_port"]),
             delete_remote=parse_bool(data["delete_remote"]),
             target_user=str(data["target_user"]),
-            poll_interval_seconds=max(1, min(60, int(data.get("poll_interval_minutes", 1)))) * 60,
             target_mailbox=str(data.get("target_mailbox", "INBOX")),
             local_imap_email=str(data["local_imap_email"]),
             local_imap_password=str(data["local_imap_password"]),
@@ -97,25 +93,13 @@ class EmailForwarder:
     def __init__(self, config: Config, state_path: Path) -> None:
         self.config = config
         self.state_path = state_path
-        self.stop_requested = False
 
-    def run(self) -> None:
+    def run_once(self) -> int:
         LOGGER.info(
-            "Starting IMAP forwarder for remote mailbox %s -> local user %s",
+            "Starting IMAP transfer cycle for remote mailbox %s -> local user %s",
             self.config.remote_email,
             self.config.target_user,
         )
-        while not self.stop_requested:
-            try:
-                processed = self.sync_once()
-                if processed:
-                    LOGGER.info("Transferred %s message(s) during this cycle", processed)
-            except Exception:
-                LOGGER.exception("Transfer cycle failed")
-            self._sleep(self.config.poll_interval_seconds)
-        LOGGER.info("Stop requested, leaving cleanly")
-
-    def sync_once(self) -> int:
         state = State.load(self.state_path)
         processed = 0
         mailbox = None
@@ -138,13 +122,16 @@ class EmailForwarder:
                     login_password=self.config.local_imap_password,
                 )
 
-                if self.config.delete_remote:
-                    self._delete_remote_message(mailbox, uid)
-
                 state.last_transfer_at = message_date
                 state.last_uid = uid
                 state.uidvalidity = current_uidvalidity
                 state.save(self.state_path)
+
+                if self.config.delete_remote:
+                    try:
+                        self._delete_remote_message(mailbox, uid)
+                    except Exception:
+                        LOGGER.exception("Remote deletion failed after local delivery for UID %s", uid)
                 processed += 1
         finally:
             if mailbox is not None:
@@ -152,19 +139,11 @@ class EmailForwarder:
                     mailbox.logout()
                 except Exception:
                     LOGGER.debug("IMAP logout failed", exc_info=True)
+        if processed:
+            LOGGER.info("Transferred %s message(s) during this cycle", processed)
+        else:
+            LOGGER.info("No message transferred during this cycle")
         return processed
-
-    def request_stop(self, *_args: object) -> None:
-        LOGGER.info("Signal received, stopping after current cycle")
-        self.stop_requested = True
-
-    def _sleep(self, seconds: int) -> None:
-        deadline = time.monotonic() + seconds
-        while not self.stop_requested:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                return
-            time.sleep(min(1.0, remaining))
 
     def _connect_remote(self) -> imaplib.IMAP4:
         timeout = 30
@@ -231,7 +210,7 @@ class EmailForwarder:
         return internaldate, raw_message
 
     def _delete_remote_message(self, mailbox: imaplib.IMAP4, uid: int) -> None:
-        status, _data = mailbox.uid("STORE", str(uid), "+FLAGS.SILENT", r"(\\Deleted)")
+        status, _data = mailbox.uid("STORE", str(uid), "+FLAGS.SILENT", r"(\Deleted)")
         ensure_ok(status, f"Unable to mark remote UID {uid} as deleted")
         if b"UIDPLUS" in mailbox.capabilities:
             status, _data = mailbox.uid("EXPUNGE", str(uid))
@@ -342,6 +321,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--state", required=True, type=Path)
+    parser.add_argument("--once", action="store_true", help="Run a single synchronization cycle")
     return parser.parse_args(argv)
 
 
@@ -354,11 +334,7 @@ def main(argv: list[str]) -> int:
     args = parse_args(argv)
     config = Config.load(path=args.config)
     forwarder = EmailForwarder(config, args.state)
-
-    signal.signal(signal.SIGINT, forwarder.request_stop)
-    signal.signal(signal.SIGTERM, forwarder.request_stop)
-
-    forwarder.run()
+    forwarder.run_once()
     return 0
 
 

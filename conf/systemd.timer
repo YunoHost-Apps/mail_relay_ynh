@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule periodic IMAP sync runs for __APP__
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=__POLL_INTERVAL_MINUTES__min
+AccuracySec=1s
+Unit=__APP__.service
+
+[Install]
+WantedBy=timers.target

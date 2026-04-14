@@ -4,25 +4,36 @@ After=network-online.target dovecot.service
 Wants=network-online.target
 
 [Service]
-Type=simple
+Type=oneshot
 User=__APP__
 Group=__APP__
 WorkingDirectory=__INSTALL_DIR__/
-ExecStart=/usr/bin/python3 -u __INSTALL_DIR__/email_forward.py --config __DATA_DIR__/config.yml --state __DATA_DIR__/state.json
-Restart=always
-RestartSec=30
+ExecStart=/usr/bin/flock -n -E 0 __DATA_DIR__/sync.lock /usr/bin/python3 -u __INSTALL_DIR__/email_forward.py --once --config __DATA_DIR__/config.yml --state __DATA_DIR__/state.json
+TimeoutStartSec=1h
 StandardOutput=append:/var/log/__APP__/__APP__.log
 StandardError=append:/var/log/__APP__/__APP__.log
+CapabilityBoundingSet=
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateDevices=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelLogs=yes
 ProtectSystem=full
+ProtectProc=invisible
+ProcSubset=pid
 ProtectControlGroups=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 LockPersonality=yes
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
 RestrictSUIDSGID=yes
+RemoveIPC=yes
+UMask=0077
+SystemCallFilter=~@cpu-emulation @debug @keyring @module @mount @obsolete @privileged @reboot @setuid @swap
 SystemCallArchitectures=native
 
 [Install]

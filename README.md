@@ -4,41 +4,36 @@ It shall NOT be edited by hand.
 -->
 
 <h1>
-  <img src="https://raw.githubusercontent.com/YunoHost/apps/main/logos/email_forward.png" width="32px" alt="Logo of YunoHost Mail Relay">
+  <img src="https://raw.githubusercontent.com/YunoHost/apps/main/logos/mail_relay.png" width="32px" alt="Logo of YunoHost Mail Relay">
   YunoHost Mail Relay, packaged for YunoHost
 </h1>
 
 Continuously relays a remote IMAP inbox into a YunoHost mailbox
 
-[![Version: 0.1~ynh1](https://img.shields.io/badge/Version-0.1~ynh1-rgb(18,138,11)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/email_forward/)
+[![Version: 0.1~ynh1](https://img.shields.io/badge/Version-0.1~ynh1-rgb(18,138,11)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/mail_relay/)
 
 <div align="center">
-<a href="https://apps.yunohost.org/app/email_forward"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_more_info_on_the_appstore.svg"/></a>
-<a href="https://github.com/YunoHost-Apps/email_forward_ynh/issues"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_report_an_issue.svg"/></a>
+<a href="https://apps.yunohost.org/app/mail_relay"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_more_info_on_the_appstore.svg"/></a>
+<a href="https://github.com/YunoHost-Apps/mail_relay_ynh/issues"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_report_an_issue.svg"/></a>
 </div>
 
 ## 📦 Developer info
 
-[![Automatic tests level](https://apps.yunohost.org/badge/cilevel/email_forward)](https://ci-apps.yunohost.org/ci/apps/email_forward/)
+[![Automatic tests level](https://apps.yunohost.org/badge/cilevel/mail_relay)](https://ci-apps.yunohost.org/ci/apps/mail_relay/)
 
-🛠️ Upstream YunoHost Mail Relay repository: <https://github.com/rungeard/mail_relay_ynh>
+🛠️ Upstream YunoHost Mail Relay repository: <https://github.com/YunoHost-Apps/mail_relay_ynh>
 
-Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/email_forward_ynh/tree/testing).
+Pull request are welcome and should target the [`testing` branch](https://github.com/YunoHost-Apps/mail_relay_ynh/tree/testing).
 
 The `testing` branch can be tested using:
 ```
 # fresh install:
-sudo yunohost app install https://github.com/YunoHost-Apps/email_forward_ynh/tree/testing
+sudo yunohost app install https://github.com/YunoHost-Apps/mail_relay_ynh/tree/testing
 
 # upgrade an existing install:
-sudo yunohost app upgrade email_forward -u https://github.com/YunoHost-Apps/email_forward_ynh/tree/testing
-```
-
-You can also switch to the testing branch to update from testing by default (as same as for APT when you chose to use a testing repos) with this command:
-```bash
-sudo yunohost app setting email_forward upgrade_channel -v testing
+sudo yunohost app upgrade mail_relay -u https://github.com/YunoHost-Apps/mail_relay_ynh/tree/testing
 ```
 
 ### 📚 App packaging documentation
 
-Please see <https://doc.yunohost.org/dev/packaging/> for more information.
+Please see <https://doc.yunohost.org/packaging_apps> for more information.
