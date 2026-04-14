@@ -8,8 +8,10 @@ readonly timer_unit_path="/etc/systemd/system/$app.timer"
 deploy_sources() {
     mkdir -p "$install_dir"
     cp -a ../sources/. "$install_dir/"
-    chmod 755 "$install_dir/email_forward.py"
     chown -R "$app:$app" "$install_dir"
+    find "$install_dir" -type d -exec chmod 750 {} +
+    find "$install_dir" -type f -exec chmod 640 {} +
+    chmod 750 "$install_dir/email_forward.py"
 }
 
 ensure_log_dir() {

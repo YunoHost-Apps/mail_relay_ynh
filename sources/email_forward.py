@@ -122,13 +122,16 @@ class EmailForwarder:
                     login_password=self.config.local_imap_password,
                 )
 
-                if self.config.delete_remote:
-                    self._delete_remote_message(mailbox, uid)
-
                 state.last_transfer_at = message_date
                 state.last_uid = uid
                 state.uidvalidity = current_uidvalidity
                 state.save(self.state_path)
+
+                if self.config.delete_remote:
+                    try:
+                        self._delete_remote_message(mailbox, uid)
+                    except Exception:
+                        LOGGER.exception("Remote deletion failed after local delivery for UID %s", uid)
                 processed += 1
         finally:
             if mailbox is not None:
@@ -207,7 +210,7 @@ class EmailForwarder:
         return internaldate, raw_message
 
     def _delete_remote_message(self, mailbox: imaplib.IMAP4, uid: int) -> None:
-        status, _data = mailbox.uid("STORE", str(uid), "+FLAGS.SILENT", r"(\\Deleted)")
+        status, _data = mailbox.uid("STORE", str(uid), "+FLAGS.SILENT", r"(\Deleted)")
         ensure_ok(status, f"Unable to mark remote UID {uid} as deleted")
         if b"UIDPLUS" in mailbox.capabilities:
             status, _data = mailbox.uid("EXPUNGE", str(uid))
