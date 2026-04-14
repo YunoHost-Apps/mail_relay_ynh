@@ -12,11 +12,11 @@ save_runtime_settings
 ensure_runtime_files
 
 ynh_script_progression "Installing system services..."
-ynh_config_add_systemd
+install_systemd_units
 ynh_config_add_logrotate
 register_service
 
-ynh_script_progression "Starting $app..."
-ynh_systemctl --service="$app" --action="start"
+ynh_script_progression "Starting scheduler for $app..."
+start_scheduler
 
 ynh_script_progression "Installation of $app completed"

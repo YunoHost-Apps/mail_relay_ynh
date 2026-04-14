@@ -37,6 +37,7 @@ ynh_app_config_apply() {
     _ynh_app_config_apply
     save_runtime_settings
     ensure_runtime_files
+    refresh_scheduler
 }
 
 ynh_app_config_run "$1"

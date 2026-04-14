@@ -3,6 +3,7 @@
 readonly default_poll_interval_minutes=1
 readonly service_description="Forward remote IMAP mail into a YunoHost mailbox"
 readonly runtime_config_path="$data_dir/config.yml"
+readonly timer_unit_path="/etc/systemd/system/$app.timer"
 
 deploy_sources() {
     mkdir -p "$install_dir"
@@ -59,6 +60,13 @@ render_runtime_config() {
     chmod 600 "$runtime_config_path"
 }
 
+render_timer_config() {
+    local poll_interval_minutes="${poll_interval_minutes:-$(ynh_app_setting_get --key=poll_interval_minutes)}"
+    poll_interval_minutes="${poll_interval_minutes:-$default_poll_interval_minutes}"
+
+    ynh_config_add --template="systemd.timer" --destination="$timer_unit_path"
+}
+
 initialize_state() {
     local state_path="$data_dir/state.json"
     local now_utc
@@ -94,6 +102,38 @@ ensure_runtime_files() {
 
 register_service() {
     yunohost service add "$app" --description="$service_description" --log="/var/log/$app/$app.log"
+}
+
+install_systemd_units() {
+    render_timer_config
+    ynh_config_add_systemd
+    systemctl daemon-reload
+    systemctl enable --quiet "$app.timer"
+}
+
+start_scheduler() {
+    systemctl start "$app.service"
+    systemctl start "$app.timer"
+}
+
+refresh_scheduler() {
+    render_timer_config
+    ynh_config_add_systemd
+    systemctl daemon-reload
+    systemctl restart "$app.timer"
+}
+
+stop_scheduler() {
+    systemctl stop "$app.timer" >/dev/null 2>&1 || true
+    systemctl stop "$app.service" >/dev/null 2>&1 || true
+    systemctl disable --quiet "$app.timer" >/dev/null 2>&1 || true
+}
+
+remove_systemd_units() {
+    stop_scheduler
+    rm -f "$timer_unit_path"
+    ynh_config_remove_systemd
+    systemctl daemon-reload
 }
 
 resolve_target_email() {

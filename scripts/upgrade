@@ -4,7 +4,7 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Stopping $app..."
-ynh_systemctl --service="$app" --action="stop" || true
+stop_scheduler
 
 ynh_script_progression "Ensuring default settings..."
 ynh_app_setting_set_default --key=poll_interval_minutes --value="$default_poll_interval_minutes"
@@ -20,11 +20,11 @@ save_runtime_settings
 ensure_runtime_files
 
 ynh_script_progression "Reinstalling system services..."
-ynh_config_add_systemd
+install_systemd_units
 ynh_config_add_logrotate
 register_service
 
-ynh_script_progression "Starting $app..."
-ynh_systemctl --service="$app" --action="start"
+ynh_script_progression "Starting scheduler for $app..."
+start_scheduler
 
 ynh_script_progression "Upgrade of $app completed"

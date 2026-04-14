@@ -22,8 +22,8 @@ architectures = "all"
 multi_instance = true
 ldap = "not_relevant"
 sso = "not_relevant"
-disk = "10M"
-ram.build = "20M"
+disk = "100M"
+ram.build = "100M"
 ram.runtime = "30M"
 
 [install]
@@ -79,7 +79,7 @@ ram.runtime = "30M"
     [resources.system_user]
 
     [resources.install_dir]
-    dir = "/opt/yunohost/__APP__"
+    dir = "/var/www/__APP__"
     owner = "__APP__:rwx"
     group = "__APP__:rx"
 
