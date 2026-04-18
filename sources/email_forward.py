@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from email import policy
 from email.parser import BytesParser
-from email.utils import formataddr, getaddresses
+from email.utils import formataddr, getaddresses, parsedate_to_datetime
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import urlparse
@@ -109,30 +109,33 @@ class EmailForwarder:
             uids = self._search_candidate_uids(mailbox, state, current_uidvalidity)
             LOGGER.debug("Found %s candidate message(s)", len(uids))
             for uid in uids:
-                message_date, raw_message = self._fetch_message(mailbox, uid)
-                if not self._is_newer_than_cursor(message_date, uid, state):
-                    continue
+                try:
+                    message_date, raw_message = self._fetch_message(mailbox, uid)
+                    if not self._is_newer_than_cursor(message_date, uid, state):
+                        continue
 
-                sanitized_message = strip_remote_recipient(raw_message, self.config.remote_email)
-                deliver_locally_via_imap_append(
-                    sanitized_message,
-                    mailbox_name=self.config.target_mailbox,
-                    received_at=message_date,
-                    login_email=self.config.local_imap_email,
-                    login_password=self.config.local_imap_password,
-                )
+                    sanitized_message = strip_remote_recipient(raw_message, self.config.remote_email)
+                    deliver_locally_via_imap_append(
+                        sanitized_message,
+                        mailbox_name=self.config.target_mailbox,
+                        received_at=message_date,
+                        login_email=self.config.local_imap_email,
+                        login_password=self.config.local_imap_password,
+                    )
 
-                state.last_transfer_at = message_date
-                state.last_uid = uid
-                state.uidvalidity = current_uidvalidity
-                state.save(self.state_path)
+                    state.last_transfer_at = message_date
+                    state.last_uid = uid
+                    state.uidvalidity = current_uidvalidity
+                    state.save(self.state_path)
 
-                if self.config.delete_remote:
-                    try:
-                        self._delete_remote_message(mailbox, uid)
-                    except Exception:
-                        LOGGER.exception("Remote deletion failed after local delivery for UID %s", uid)
-                processed += 1
+                    if self.config.delete_remote:
+                        try:
+                            self._delete_remote_message(mailbox, uid)
+                        except Exception:
+                            LOGGER.exception("Remote deletion failed after local delivery for UID %s", uid)
+                    processed += 1
+                except Exception as exc:
+                    LOGGER.warning("Skipping UID %s after processing failure: %s", uid, exc)
         finally:
             if mailbox is not None:
                 try:
@@ -205,9 +208,25 @@ class EmailForwarder:
                     "%d-%b-%Y %H:%M:%S %z",
                 ).astimezone(timezone.utc).replace(microsecond=0)
 
-        if raw_message is None or internaldate is None:
+        if raw_message is None:
             raise RuntimeError(f"Incomplete FETCH response for UID {uid}")
-        return internaldate, raw_message
+        if internaldate is not None:
+            return internaldate, raw_message
+
+        header_date = extract_header_date(raw_message)
+        if header_date is not None:
+            LOGGER.warning(
+                "Remote server omitted INTERNALDATE for UID %s; falling back to Date header",
+                uid,
+            )
+            return header_date, raw_message
+
+        fallback_now = _utc_now()
+        LOGGER.warning(
+            "Remote server omitted INTERNALDATE for UID %s and no usable Date header was found; falling back to current time",
+            uid,
+        )
+        return fallback_now, raw_message
 
     def _delete_remote_message(self, mailbox: imaplib.IMAP4, uid: int) -> None:
         status, _data = mailbox.uid("STORE", str(uid), "+FLAGS.SILENT", r"(\Deleted)")
@@ -250,6 +269,29 @@ def strip_remote_recipient(raw_message: bytes, remote_email: str) -> bytes:
     message["X-Forwarded-By"] = "email_forward YunoHost"
     message["X-Forwarded-Source"] = remote_email
     return message.as_bytes(policy=policy.SMTP)
+
+
+def extract_header_date(raw_message: bytes) -> datetime | None:
+    message = BytesParser(policy=policy.SMTP).parsebytes(raw_message, headersonly=True)
+    header_value = message.get("Date")
+    if not header_value:
+        return None
+    try:
+        parsed = parsedate_to_datetime(header_value)
+    except (TypeError, ValueError, IndexError):
+        LOGGER.warning("Unable to parse Date header: %r", header_value)
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    normalized = parsed.astimezone(timezone.utc).replace(microsecond=0)
+    now = _utc_now()
+    if normalized > now:
+        LOGGER.warning(
+            "Date header is in the future (%s); falling back to current time",
+            normalized.isoformat(),
+        )
+        return now
+    return normalized
 
 
 def deliver_locally_via_imap_append(

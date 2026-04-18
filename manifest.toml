@@ -7,7 +7,7 @@ name = "YunoHost Mail Relay"
 description.en = "Continuously relays a remote IMAP inbox into a YunoHost mailbox"
 description.fr = "Relaye en continu une boite IMAP distante vers une boite mail YunoHost"
 
-version = "0.1~ynh1"
+version = "0.2~ynh1"
 
 maintainers = ["rungeard"]
 
