@@ -16,12 +16,14 @@ license = "GPL-3.0-or-later"
 code = "https://github.com/YunoHost-Apps/mail_relay_ynh"
 
 [integration]
-yunohost = ">= 12.1.17"
+yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
+
 ldap = "not_relevant"
 sso = "not_relevant"
+
 disk = "100M"
 ram.build = "100M"
 ram.runtime = "30M"
